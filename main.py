@@ -1,60 +1,61 @@
 import os
 import csv
 
-# Define the path to the CSV file
-csvpath = "PyPoll/Resources/election_data.csv"
+# Define the file
+csvpath = "PyBank/Resources/budget_data.csv"
 
-# Check if file exists
-if not os.path.isfile(csvpath):
-    print(f"File not found: {csvpath}")
-    exit()
-
-# Initialize variables
-total_votes = 0
-candidate_votes = {}
+# define variables
+total_months = 0
+total_profit_losses = 0
+previous_profit_loss = None
+changes = []
+greatest_increase = ["", 0]
+greatest_decrease = ["", 0]
 
 # Open the CSV file
 with open(csvpath) as csvfile:
     csvreader = csv.reader(csvfile)
-    header = next(csvreader)  # Skip the header row
+    header = next(csvreader)  
 
     for row in csvreader:
-        # Extract the data
-        total_votes += 1
-        candidate = row[2]
+     
+        date = row[0]
+        profit_loss = int(row[1])
 
-        if candidate not in candidate_votes:
-            candidate_votes[candidate] = 0
-        candidate_votes[candidate] += 1
+        # Calculate the total months and total profit/losses
+        total_months += 1
+        total_profit_losses += profit_loss
 
-# Calculate the winner and percentages
-winner = ""
-winning_count = 0
-results = []
+        if previous_profit_loss is not None:
+            # Calculate the change from the previous month
+            change = profit_loss - previous_profit_loss
+            changes.append(change)
 
-for candidate, votes in candidate_votes.items():
-    vote_percentage = (votes / total_votes) * 100
-    results.append(f"{candidate}: {vote_percentage:.3f}% ({votes})")
-    if votes > winning_count:
-        winning_count = votes
-        winner = candidate
+            # Condition for the greatest increase and decrease
+            if change > greatest_increase[1]:
+                greatest_increase = [date, change]
+            if change < greatest_decrease[1]:
+                greatest_decrease = [date, change]
+
+        # Update the previous profit/loss
+        previous_profit_loss = profit_loss
+
+# Calculate the average change
+average_change = sum(changes) / len(changes) if changes else 0
 
 # Print the analysis to the terminal
 output = (
-    f"Election Results\n"
-    f"-------------------------\n"
-    f"Total Votes: {total_votes}\n"
-    f"-------------------------\n"
-)
-output += '\n'.join(results)
-output += (
-    f"\n-------------------------\n"
-    f"Winner: {winner}\n"
-    f"-------------------------\n"
+    f"Financial Analysis\n"
+    f"----------------------------\n"
+    f"Total Months: {total_months}\n"
+    f"Total: ${total_profit_losses}\n"
+    f"Average Change: ${average_change:.2f}\n"
+    f"Greatest Increase in Profits: {greatest_increase[0]} (${greatest_increase[1]})\n"
+    f"Greatest Decrease in Profits: {greatest_decrease[0]} (${greatest_decrease[1]})\n"
 )
 print(output)
 
 # Write the results to a text file
-output_path = os.path.join('analysis', 'election_results.txt')
+output_path = os.path.join('analysis', 'financial_analysis.txt')
 with open(output_path, 'w') as txtfile:
     txtfile.write(output)
