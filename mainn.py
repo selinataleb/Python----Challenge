@@ -57,5 +57,14 @@ print(output)
 
 # Write the results to a text file
 output_path = "PyBank/Analysis"
-with open(output_path, 'w') as txtfile:
-    txtfile.write(output)
+
+# Check if PyBank/Analysis is a file
+if os.path.isfile(output_path):
+    print(f"Error: {output_path} is a file, not a directory.")
+else:
+    os.makedirs(output_path, exist_ok=True)  # Ensure the directory exists
+
+    # Write the output summary to a text file
+    output_file = os.path.join(output_path, 'analysis.txt')  # Add file extension
+    with open(output_file, 'w') as txtfile:
+        txtfile.write(output)
